@@ -49,12 +49,6 @@ def only_simbolos(problem):
     
 
 
-def separar_problemitas(problem):
-  res = []
-  for op in problem:
-    res.append(op.split(' '))
-  return res
-
 
 def indentif_op(problem,operador,index):
     c = separar_problemitas(problem)
@@ -71,15 +65,33 @@ def obtener_componentes(problema):
 # Problema
 c = ["32 + 698", "3801 - 2", "45 + 43", "123 + 49"]
 
+def solucion(problem):
+    res = []
+    may,men,smb = obtener_componentes(problem)
+    largo = len(may)
+    for expresion in range(largo):
+        if indentif_op(problem,may[expresion],expresion):    
+            if smb[expresion] == '+':
+                var_res = int(may[expresion]) + int(men[expresion])
+            else:
+                var_res = int(may[expresion]) - int(men[expresion])
+        else:
+            if smb[expresion] == '+':
+               var_res = int(men[expresion]) + int(may[expresion])
+            else:
+               var_res = int(men[expresion]) - int(may[expresion])
+        res.append(str(var_res))
+    return res
 
-def formatear_operaciones(problema):
-    
+def formatear_operaciones(problema,result=False):
     largo = len(problema)
     text = ""
     text_m = ""
     text_l = ""
+    text_r = ""
     may,men,smb = obtener_componentes(problema)
-
+    
+    
     for expresion in range(largo):
         if indentif_op(problema,may[expresion],expresion):
             esp = min(max(3, len(may[expresion]) + 2), 6)
@@ -88,12 +100,29 @@ def formatear_operaciones(problema):
             lg_m = esp - (len(smb[expresion]) + len(men[expresion]))
             text_m += smb[expresion] + lg_m * " " + men[expresion] + 4 * " "
             text_l += "-" * esp + 4 * " "
+            if result:
+                sol = solucion(problema)
+                if int(sol[expresion]) >= 0:
+                    lg_r = esp - len(sol[expresion])
+                else:
+                    lg_r = esp - len(sol[expresion])
+                text_r += lg_r * " " + sol[expresion] + 4 * " "
+                  
         else:
             esp = min(max(3, len(may[expresion]) + 2), 6)
             lg = esp - len(men[expresion])
             text += lg * " " + men[expresion] + 4 * " "
             text_m += smb[expresion] + " " + may[expresion] + 4 * " "
             text_l += "-" * esp + 4 * " "
+            if result:
+                sol = solucion(problema)
+                if int(sol[expresion]) >= 0:
+                    lg_r = esp - len(sol[expresion])
+                else:
+                    lg_r = esp - len(sol[expresion])
+                text_r += lg_r * " " + sol[expresion] + 4 * " "
+    if result:
+        return f'{text[:-4]}\n{text_m[:-4]}\n{text_l[:-4]}\n{text_r[:-4]}'
     return f'{text[:-4]}\n{text_m[:-4]}\n{text_l[:-4]}'
 
 
@@ -108,5 +137,5 @@ def arithmetic_arranger(problems, result=False):
             return 'Error: Numbers must only contain digits.'
         if re.findall(r'[0-9]{5}', problem):
             return 'Error: Numbers cannot be more than four digits.'
-    arranged_problems = formatear_operaciones(problems)
+    arranged_problems = formatear_operaciones(problems,result)
     return arranged_problems
